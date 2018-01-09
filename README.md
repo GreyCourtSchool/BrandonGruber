@@ -9,3 +9,4 @@ mvn clean install
 ```
 
 # How to run
+java -cp target/brandongruber.revcards-1.0-SNAPSHOT.jar uk.sch.greycourt.richmond.brandongruber.revcards.RevCardApplication
