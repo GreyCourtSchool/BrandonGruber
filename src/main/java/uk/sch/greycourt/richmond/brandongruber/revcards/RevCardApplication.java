@@ -8,6 +8,9 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Pair;
+
+import java.util.Optional;
 
 public class RevCardApplication extends Application {
 
@@ -20,7 +23,15 @@ public class RevCardApplication extends Application {
         VBox root = new VBox();
         MenuBar menuBar = new MenuBar();
         Menu project = new Menu("Project");
-        project.getItems().addAll(new MenuItem("New Project"));
+        MenuItem newProjectMenuItem = new MenuItem("New Project");
+        newProjectMenuItem.setOnAction(event -> {
+            NewProjectDialogue newProjectDialogue = new NewProjectDialogue();
+            Optional<Pair<String, String>> optionalPair = newProjectDialogue.showAndWait();
+            optionalPair.ifPresent(stringStringPair -> System.out.println("Creating new project" + stringStringPair.getKey()));
+            // TODO save project in csv
+        });
+        project.getItems().addAll(newProjectMenuItem);
+        project.getItems().addAll(new MenuItem("Open Project"));
         Menu help = new Menu("Help");
         MenuItem exit = new MenuItem("Exit");
         exit.setOnAction(event -> Platform.exit());
