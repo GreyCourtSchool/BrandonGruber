@@ -7,12 +7,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.util.Pair;
 
-class NewProjectDialogue extends Dialog<Pair<String, String>> {
+/**
+ * {@link Dialog} extension for adding a new project.
+ */
+class NewProjectDialog extends Dialog<Pair<String, String>> {
 
     private final TextField titleTextField;
     private final TextField descriptionTextField;
 
-    NewProjectDialogue() {
+    /**
+     * Constructor.
+     */
+    NewProjectDialog() {
         GridPane gridPane = new GridPane();
         gridPane.setHgap(4);
         gridPane.setVgap(4);
