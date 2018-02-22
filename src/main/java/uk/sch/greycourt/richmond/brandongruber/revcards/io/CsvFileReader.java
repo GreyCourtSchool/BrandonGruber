@@ -1,7 +1,9 @@
-package uk.sch.greycourt.richmond.brandongruber.revcards;
+package uk.sch.greycourt.richmond.brandongruber.revcards.io;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import uk.sch.greycourt.richmond.brandongruber.revcards.Project;
+import uk.sch.greycourt.richmond.brandongruber.revcards.ProjectCsvHeaders;
 
 import java.io.FileReader;
 import java.io.IOException;
