@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -23,17 +24,16 @@ public class CsvFileWriter {
      * @param projects   The {@link List} of {@link Project} instances to write to file.
      * @throws IOException If the projects could not be written to file.
      */
-    public void writeProjects(File outputFile, List<Project> projects) throws IOException {
+    public void writeProjects(File outputFile, Collection<Project> projects) throws IOException {
         FileWriter fileWriter = new FileWriter(outputFile);
         CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.EXCEL);
 
         // Write the header to csv file.
-        csvPrinter.printRecord(ProjectCsvHeaders.ID, ProjectCsvHeaders.NAME, ProjectCsvHeaders.DESCRIPTION);
+        csvPrinter.printRecord(ProjectCsvHeaders.NAME, ProjectCsvHeaders.DESCRIPTION);
 
         // Write the projects to the csv file.
         for (Project project : projects) {
             List<String> rowDataList = new ArrayList<>();
-            rowDataList.add(project.getId());
             rowDataList.add(project.getName());
             rowDataList.add(project.getDescription());
             csvPrinter.printRecord(rowDataList);

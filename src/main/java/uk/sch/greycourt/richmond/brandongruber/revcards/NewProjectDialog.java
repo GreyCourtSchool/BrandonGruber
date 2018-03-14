@@ -10,7 +10,7 @@ import javafx.util.Pair;
 /**
  * {@link Dialog} extension for adding a new project.
  */
-class NewProjectDialog extends Dialog<Pair<String, String>> {
+class NewProjectDialog extends Dialog<Project> {
 
     private final TextField titleTextField;
     private final TextField descriptionTextField;
@@ -30,7 +30,7 @@ class NewProjectDialog extends Dialog<Pair<String, String>> {
         gridPane.add(descriptionTextField, 1, 1, 1, 1);
         getDialogPane().setContent(gridPane);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        setResultConverter(param -> new Pair<>(titleTextField.getText(), descriptionTextField.getText()));
+        setResultConverter(param -> new Project(titleTextField.getText(), descriptionTextField.getText()));
     }
 
 }

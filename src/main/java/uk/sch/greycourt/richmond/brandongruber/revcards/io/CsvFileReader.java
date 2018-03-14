@@ -21,16 +21,16 @@ public class CsvFileReader {
      *
      * @return A {@link List} of {@link Project} instances or an empty list if there are no projects.
      * @throws IOException If the project csv file could not be found.
+     * @param fileName
      */
-    public List<Project> readProjects() throws IOException {
+    public List<Project> readProjects(String fileName) throws IOException {
         List<Project> result = new ArrayList<>();
-        Reader in = new FileReader("path/to/file.csv");
+        Reader in = new FileReader(fileName);
         Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(in);
         for (CSVRecord record : records) {
-            String id = record.get(ProjectCsvHeaders.ID);
             String name = record.get(ProjectCsvHeaders.NAME);
             String description = record.get(ProjectCsvHeaders.DESCRIPTION);
-            result.add(new Project(id, name, description));
+            result.add(new Project( name, description));
         }
         return result;
     }
