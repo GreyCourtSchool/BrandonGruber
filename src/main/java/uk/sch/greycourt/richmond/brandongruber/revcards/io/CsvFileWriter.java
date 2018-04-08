@@ -3,7 +3,6 @@ package uk.sch.greycourt.richmond.brandongruber.revcards.io;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import uk.sch.greycourt.richmond.brandongruber.revcards.Project;
-import uk.sch.greycourt.richmond.brandongruber.revcards.ProjectCsvHeaders;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -27,9 +26,6 @@ public class CsvFileWriter {
     public void writeProjects(File outputFile, Collection<Project> projects) throws IOException {
         FileWriter fileWriter = new FileWriter(outputFile);
         CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.EXCEL);
-
-        // Write the header to csv file.
-        csvPrinter.printRecord(ProjectCsvHeaders.NAME, ProjectCsvHeaders.DESCRIPTION);
 
         // Write the projects to the csv file.
         for (Project project : projects) {

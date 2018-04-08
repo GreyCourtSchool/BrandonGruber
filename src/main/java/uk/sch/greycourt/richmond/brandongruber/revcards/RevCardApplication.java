@@ -33,6 +33,7 @@ public class RevCardApplication extends Application {
     private Set<Project> projects = new TreeSet<>();
     private CsvFileReader csvFileReader = new CsvFileReader();
     private CsvFileWriter csvFileWriter = new CsvFileWriter();
+    private Menu projectMenu;
 
     /**
      * The main entry point for the application.
@@ -55,6 +56,16 @@ public class RevCardApplication extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
+        loadProjects();
+        projects.forEach(project -> {
+            MenuItem menuItem = new MenuItem(project.getName());
+            projectMenu.getItems().addAll(menuItem);
+        });
+
+
+    }
+
+    private void loadProjects() {
         try {
             File file = new File(PROJECTS_FILE_PATH);
             if (!file.exists()) {
@@ -78,12 +89,13 @@ public class RevCardApplication extends Application {
 
     private MenuBar getMenuBar() {
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(getProjectMenu(), getHelpMenu());
+        this.projectMenu = new Menu("Project");
+        menuBar.getMenus().addAll(getFileMenu(), projectMenu, getHelpMenu());
         return menuBar;
     }
 
-    private Menu getProjectMenu() {
-        Menu menu = new Menu("Project");
+    private Menu getFileMenu() {
+        Menu menu = new Menu("File");
         MenuItem newProjectMenuItem = new MenuItem("New Project");
         newProjectMenuItem.setOnAction(event -> {
             NewProjectDialog newProjectDialogue = new NewProjectDialog();
@@ -119,6 +131,7 @@ public class RevCardApplication extends Application {
             });
             // TODO save project in csv
         });
+
         menu.getItems().addAll(newProjectMenuItem);
         menu.getItems().addAll(new MenuItem("Open Project"));
         return menu;
