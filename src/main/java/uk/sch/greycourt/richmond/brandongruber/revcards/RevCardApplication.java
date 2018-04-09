@@ -2,6 +2,8 @@ package uk.sch.greycourt.richmond.brandongruber.revcards;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -25,11 +27,13 @@ import java.util.TreeSet;
 public class RevCardApplication extends Application {
 
     private static final String PROJECTS_FILE_PATH = System.getProperty("user.home") + File.separator + "projects.csv";
+    private static final String CARDS_FILE_PATH = System.getProperty("user.home") + File.separator + "cards.csv";
     private Logger logger = LogManager.getLogger(getClass());
 
     private Set<Project> projects = new TreeSet<>();
     private Menu projectMenu;
     private final RevisionCardReaderWriter revisionCardReaderWriter = new CsvFileReaderWriter();
+    private Project project;
 
     /**
      * The main entry point for the application.
@@ -55,6 +59,12 @@ public class RevCardApplication extends Application {
         loadProjects();
         projects.forEach(project -> {
             MenuItem menuItem = new MenuItem(project.getName());
+            menuItem.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    RevCardApplication.this.project = project;
+                }
+            });
             projectMenu.getItems().addAll(menuItem);
         });
 
@@ -98,7 +108,33 @@ public class RevCardApplication extends Application {
 
     private Menu getCardsMenu() {
         Menu menu = new Menu("Cards");
-        menu.getItems().addAll(new MenuItem("New Card"));
+        MenuItem newCardMenuItem = new MenuItem("New Card");
+        newCardMenuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                NewRevCardDialogue revCardDialogue = new NewRevCardDialogue();
+                Optional<RevCard> optionalCard = revCardDialogue.showAndWait();
+                optionalCard.ifPresent(project -> {
+                    logger.info("Creating new RevCard " + project.getTitle());
+                    try {
+                        RevCardApplication.this.project.addCard(project);
+
+                        revisionCardReaderWriter.writeCards(new File(CARDS_FILE_PATH), RevCardApplication.this.projects);
+                    } catch (IOException e) {
+                        String message = "Could not write projects";
+                        logger.error(message, e);
+
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Warning");
+//                    alert.setHeaderText("Look, a Warning Dialog");
+                        alert.setContentText(message);
+                        alert.showAndWait();
+                    }
+
+                });
+            }
+        });
+        menu.getItems().addAll(newCardMenuItem);
         menu.getItems().addAll(new MenuItem("Edit Card"));
         menu.getItems().addAll(new SeparatorMenuItem());
         menu.getItems().addAll(new MenuItem("View Cards"));

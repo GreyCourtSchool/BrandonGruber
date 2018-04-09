@@ -11,7 +11,7 @@ public class Project implements Comparable<Project> {
 
     private String name;
     private String description;
-    private List<RevisionCard> cardList =new ArrayList<>();
+    private List<RevCard> cardList =new ArrayList<>();
 
     /**
      * Constructor.
@@ -49,6 +49,14 @@ public class Project implements Comparable<Project> {
     @Override
     public int compareTo(Project o) {
         return this.name.compareTo(o.name);
+    }
+
+    public void addCard(RevCard revCard) {
+        cardList.add(revCard);
+    }
+
+    public List<RevCard> getCardList() {
+        return cardList;
     }
 }
 

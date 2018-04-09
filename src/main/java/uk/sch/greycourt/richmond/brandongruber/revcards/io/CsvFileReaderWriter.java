@@ -6,11 +6,13 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import uk.sch.greycourt.richmond.brandongruber.revcards.Project;
 import uk.sch.greycourt.richmond.brandongruber.revcards.ProjectCsvHeaders;
+import uk.sch.greycourt.richmond.brandongruber.revcards.RevCard;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Reader of project csv files.
@@ -51,4 +53,26 @@ public class CsvFileReaderWriter implements RevisionCardReaderWriter {
         }
         return result;
     }
+
+    @Override
+    public void writeCards(File outputFile, Set<Project> projects) throws IOException {
+        outputFile.createNewFile();
+        FileWriter fileWriter = new FileWriter(outputFile);
+        CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.EXCEL);
+
+        for (Project project : projects) {
+            for (RevCard revCard : project.getCardList()) {
+                List<String> rowDataList = new ArrayList<>();
+                rowDataList.add(project.getName());
+                rowDataList.add(revCard.getTitle());
+                rowDataList.add(revCard.getContent());
+                csvPrinter.printRecord(rowDataList);
+            }
+        }
+
+        fileWriter.flush();
+        fileWriter.close();
+        csvPrinter.close();
+    }
+
 }

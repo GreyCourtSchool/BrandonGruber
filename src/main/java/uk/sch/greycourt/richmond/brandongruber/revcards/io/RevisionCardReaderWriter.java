@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public interface RevisionCardReaderWriter {
 
@@ -26,4 +27,6 @@ public interface RevisionCardReaderWriter {
      * @throws IOException If the project csv file could not be found.
      */
     List<Project> readProjects(String fileName) throws IOException;
+
+    void writeCards(File file, Set<Project> projects) throws IOException;
 }
