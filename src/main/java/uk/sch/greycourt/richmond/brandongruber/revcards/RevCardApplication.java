@@ -3,10 +3,7 @@ package uk.sch.greycourt.richmond.brandongruber.revcards;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
@@ -88,13 +85,27 @@ public class RevCardApplication extends Application {
 
     private MenuBar getMenuBar() {
         MenuBar menuBar = new MenuBar();
-        this.projectMenu = new Menu("Project");
-        menuBar.getMenus().addAll(getFileMenu(), projectMenu, getHelpMenu());
+        createProjectMenu();
+        menuBar.getMenus().addAll(projectMenu, getCardsMenu(), getHelpMenu());
         return menuBar;
     }
 
-    private Menu getFileMenu() {
-        Menu menu = new Menu("File");
+    private void createProjectMenu() {
+        this.projectMenu = new Menu("Projects");
+        projectMenu.getItems().addAll(createNewProjectMenuItem());
+        projectMenu.getItems().addAll(new SeparatorMenuItem());
+    }
+
+    private Menu getCardsMenu() {
+        Menu menu = new Menu("Cards");
+        menu.getItems().addAll(new MenuItem("New Card"));
+        menu.getItems().addAll(new MenuItem("Edit Card"));
+        menu.getItems().addAll(new SeparatorMenuItem());
+        menu.getItems().addAll(new MenuItem("View Cards"));
+        return menu;
+    }
+
+    private MenuItem createNewProjectMenuItem() {
         MenuItem newProjectMenuItem = new MenuItem("New Project");
         newProjectMenuItem.setOnAction(event -> {
             NewProjectDialog newProjectDialogue = new NewProjectDialog();
@@ -131,10 +142,7 @@ public class RevCardApplication extends Application {
             });
             // TODO save project in csv
         });
-
-        menu.getItems().addAll(newProjectMenuItem);
-        menu.getItems().addAll(new MenuItem("Open Project"));
-        return menu;
+        return newProjectMenuItem;
     }
 
     private Menu getHelpMenu() {
