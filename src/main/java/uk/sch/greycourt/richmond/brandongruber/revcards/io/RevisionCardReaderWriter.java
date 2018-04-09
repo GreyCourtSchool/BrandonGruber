@@ -1,8 +1,10 @@
 package uk.sch.greycourt.richmond.brandongruber.revcards.io;
 
 import uk.sch.greycourt.richmond.brandongruber.revcards.Project;
+import uk.sch.greycourt.richmond.brandongruber.revcards.RevCard;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -29,4 +31,7 @@ public interface RevisionCardReaderWriter {
     List<Project> readProjects(String fileName) throws IOException;
 
     void writeCards(File file, Set<Project> projects) throws IOException;
+
+
+    List<RevCard> getCardsFor(String fileName, Project project) throws IOException;
 }

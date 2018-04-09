@@ -6,6 +6,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
@@ -34,6 +36,8 @@ public class RevCardApplication extends Application {
     private Menu projectMenu;
     private final RevisionCardReaderWriter revisionCardReaderWriter = new CsvFileReaderWriter();
     private Project project;
+    private VBox root;
+    private RevCardViewer revCardViewer = new RevCardViewer();
 
     /**
      * The main entry point for the application.
@@ -46,10 +50,12 @@ public class RevCardApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        VBox root = new VBox();
+        HBox menuHBox = new HBox();
         MenuBar menuBar = getMenuBar();
-        root.getChildren().add(menuBar);
+        menuHBox.getChildren().add(menuBar);
 
+        root = new VBox();
+        root.getChildren().add(menuHBox);
         Scene scene = new Scene(root, 300, 250);
 
         primaryStage.setTitle("RevCards");
@@ -63,6 +69,17 @@ public class RevCardApplication extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     RevCardApplication.this.project = project;
+                    try {
+                        project.setCardsList(revisionCardReaderWriter.getCardsFor(CARDS_FILE_PATH, project));
+                    } catch (IOException e) {
+                        String message = "Could not read cards for project";
+                        logger.error(message, e);
+
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Warning");
+                        alert.setContentText(message);
+                        alert.showAndWait();
+                    }
                 }
             });
             projectMenu.getItems().addAll(menuItem);
@@ -81,6 +98,7 @@ public class RevCardApplication extends Application {
             }
 
             projects.addAll(revisionCardReaderWriter.readProjects(PROJECTS_FILE_PATH));
+
         } catch (IOException e) {
             String message = "Could not read projects";
             logger.error(message, e);
@@ -108,6 +126,29 @@ public class RevCardApplication extends Application {
 
     private Menu getCardsMenu() {
         Menu menu = new Menu("Cards");
+        menu.getItems().addAll(createNewCardMenuItem());
+        menu.getItems().addAll(new MenuItem("Edit Card"));
+        menu.getItems().addAll(new SeparatorMenuItem());
+        menu.getItems().addAll(createViewCardsMenuItem());
+        return menu;
+    }
+
+    private MenuItem createViewCardsMenuItem() {
+        MenuItem menuItem = new MenuItem("View Cards");
+        menuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (!root.getChildren().contains(revCardViewer)) {
+                    root.getChildren().add(revCardViewer);
+                    VBox.setVgrow(revCardViewer, Priority.ALWAYS);
+                }
+                revCardViewer.showCardsFor(project);
+            }
+        });
+        return menuItem;
+    }
+
+    private MenuItem createNewCardMenuItem() {
         MenuItem newCardMenuItem = new MenuItem("New Card");
         newCardMenuItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -134,11 +175,7 @@ public class RevCardApplication extends Application {
                 });
             }
         });
-        menu.getItems().addAll(newCardMenuItem);
-        menu.getItems().addAll(new MenuItem("Edit Card"));
-        menu.getItems().addAll(new SeparatorMenuItem());
-        menu.getItems().addAll(new MenuItem("View Cards"));
-        return menu;
+        return newCardMenuItem;
     }
 
     private MenuItem createNewProjectMenuItem() {

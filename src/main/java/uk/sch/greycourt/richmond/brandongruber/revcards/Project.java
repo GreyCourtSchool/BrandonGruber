@@ -58,5 +58,9 @@ public class Project implements Comparable<Project> {
     public List<RevCard> getCardList() {
         return cardList;
     }
+
+    public void setCardsList(List<RevCard> cardsList) {
+        this.cardList = cardsList;
+    }
 }
 
