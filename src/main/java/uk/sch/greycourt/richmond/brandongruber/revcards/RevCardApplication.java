@@ -11,8 +11,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uk.sch.greycourt.richmond.brandongruber.revcards.io.CsvFileReader;
-import uk.sch.greycourt.richmond.brandongruber.revcards.io.CsvFileWriter;
+import uk.sch.greycourt.richmond.brandongruber.revcards.io.CsvFileReaderWriter;
+import uk.sch.greycourt.richmond.brandongruber.revcards.io.RevisionCardReaderWriter;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,9 +31,8 @@ public class RevCardApplication extends Application {
     private Logger logger = LogManager.getLogger(getClass());
 
     private Set<Project> projects = new TreeSet<>();
-    private CsvFileReader csvFileReader = new CsvFileReader();
-    private CsvFileWriter csvFileWriter = new CsvFileWriter();
     private Menu projectMenu;
+    private final RevisionCardReaderWriter revisionCardReaderWriter = new CsvFileReaderWriter();
 
     /**
      * The main entry point for the application.
@@ -74,7 +73,7 @@ public class RevCardApplication extends Application {
                 logger.info("Projects file {} written", PROJECTS_FILE_PATH);
             }
 
-            projects.addAll(csvFileReader.readProjects(PROJECTS_FILE_PATH));
+            projects.addAll(revisionCardReaderWriter.readProjects(PROJECTS_FILE_PATH));
         } catch (IOException e) {
             String message = "Could not read projects";
             logger.error(message, e);
@@ -116,7 +115,8 @@ public class RevCardApplication extends Application {
                 logger.info("Creating new project " + project.getName());
                 try {
                     this.projects.add(project);
-                    csvFileWriter.writeProjects(new File(PROJECTS_FILE_PATH), this.projects);
+
+                    revisionCardReaderWriter.writeProjects(new File(PROJECTS_FILE_PATH), this.projects);
                 } catch (IOException e) {
                     String message = "Could not write projects";
                     logger.error(message, e);

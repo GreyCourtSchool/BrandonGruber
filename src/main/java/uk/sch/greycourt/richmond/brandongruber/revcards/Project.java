@@ -1,5 +1,7 @@
 package uk.sch.greycourt.richmond.brandongruber.revcards;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -9,7 +11,7 @@ public class Project implements Comparable<Project> {
 
     private String name;
     private String description;
-
+    private List<RevisionCard> cardList =new ArrayList<>();
 
     /**
      * Constructor.
@@ -49,3 +51,4 @@ public class Project implements Comparable<Project> {
         return this.name.compareTo(o.name);
     }
 }
+
