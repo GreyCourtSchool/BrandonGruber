@@ -9,8 +9,8 @@ import uk.sch.greycourt.richmond.brandongruber.revcards.RevCard;
  */
 public class RevCardDialogue extends Dialog<RevCard> {
 
-    private final TextField titleTextField;
-    private final TextArea contentTextArea;
+    private final TextField titleTextField = new TextField();
+    private final TextArea contentTextArea = new TextArea();
 
     /**
      * Constructor to use when creating a new {@link RevCard}
@@ -22,8 +22,8 @@ public class RevCardDialogue extends Dialog<RevCard> {
         gridPane.setVgap(4);
         gridPane.add(new Label("Title"), 0, 0, 1, 1);
         gridPane.add(new Label("Description"), 0, 1, 1, 1);
-        titleTextField = new TextField();
-        contentTextArea = new TextArea();
+
+
         gridPane.add(titleTextField, 1, 0, 1, 1);
         gridPane.add(contentTextArea, 1, 1, 1, 1);
         getDialogPane().setContent(gridPane);
