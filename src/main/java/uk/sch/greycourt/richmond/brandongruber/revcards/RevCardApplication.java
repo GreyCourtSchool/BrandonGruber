@@ -13,6 +13,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.sch.greycourt.richmond.brandongruber.revcards.dialog.EditCardsDialog;
+import uk.sch.greycourt.richmond.brandongruber.revcards.dialog.EditProjectDialog;
+import uk.sch.greycourt.richmond.brandongruber.revcards.dialog.NewProjectDialog;
+import uk.sch.greycourt.richmond.brandongruber.revcards.dialog.RevCardDialogue;
 import uk.sch.greycourt.richmond.brandongruber.revcards.io.CsvFileReaderWriter;
 import uk.sch.greycourt.richmond.brandongruber.revcards.io.RevisionCardReaderWriter;
 
@@ -150,7 +154,7 @@ public class RevCardApplication extends Application {
             public void handle(ActionEvent event) {
                 EditProjectDialog dialog = new EditProjectDialog(RevCardApplication.this.projectProperty.get());
                 Optional<Project> optionalProject = dialog.showAndWait();
-                optionalProject.ifPresent(project -> {
+                optionalProject.ifPresent((Project project) -> {
                     logger.info("Project edited " + project.getName());
                     RevCardApplication.this.projects.add(project);
                     writeProjects();
@@ -165,24 +169,27 @@ public class RevCardApplication extends Application {
         menuItem.setOnAction(event -> {
             NewProjectDialog dialog = new NewProjectDialog();
             Optional<Project> optionalProject = dialog.showAndWait();
-            optionalProject.ifPresent(project -> {
-                // check that projectProperty does not already exist
-                if (projects.contains(project)) {
-                    String message = String.format("Project %s already exists", project.getName());
-                    logger.info(message);
+            optionalProject.ifPresent(new Consumer<Project>() {
+                @Override
+                public void accept(Project project) {
+                    // check that projectProperty does not already exist
+                    if (projects.contains(project)) {
+                        String message = String.format("Project %s already exists", project.getName());
+                        logger.info(message);
 
-                    Alert alert = new Alert(Alert.AlertType.WARNING);
-                    alert.setTitle("Warning");
-                    alert.setContentText(message);
-                    alert.showAndWait();
-                    return;
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("Warning");
+                        alert.setContentText(message);
+                        alert.showAndWait();
+                        return;
+                    }
+
+                    logger.info("Creating new projectProperty " + project.getName());
+                    RevCardApplication.this.projects.add(project);
+                    RevCardApplication.this.addOpenProjectMenuItem(project);
+                    RevCardApplication.this.writeProjects();
+
                 }
-
-                logger.info("Creating new projectProperty " + project.getName());
-                this.projects.add(project);
-                RevCardApplication.this.addOpenProjectMenuItem(project);
-                writeProjects();
-
             });
             // TODO save projectProperty in csv
         });
@@ -220,7 +227,7 @@ public class RevCardApplication extends Application {
             public void handle(ActionEvent event) {
                 EditCardsDialog dialog = new EditCardsDialog(RevCardApplication.this.projectProperty.get());
                 Optional<List<RevCard>> optional = dialog.showAndWait();
-                optional.ifPresent(project -> {
+                optional.ifPresent((List<RevCard> project) -> {
                     logger.info("Cards edited for projectProperty " + RevCardApplication.this.projectProperty.get().getName());
                     RevCardApplication.this.projectProperty.get().setCardsList(optional.get());
                     writeCards();

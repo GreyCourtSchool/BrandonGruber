@@ -1,4 +1,4 @@
-package uk.sch.greycourt.richmond.brandongruber.revcards;
+package uk.sch.greycourt.richmond.brandongruber.revcards.io;
 
 /**
  * Defines the header names for the project csv file.

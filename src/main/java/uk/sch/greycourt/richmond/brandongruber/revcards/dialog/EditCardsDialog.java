@@ -1,4 +1,4 @@
-package uk.sch.greycourt.richmond.brandongruber.revcards;
+package uk.sch.greycourt.richmond.brandongruber.revcards.dialog;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -7,10 +7,13 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
+import uk.sch.greycourt.richmond.brandongruber.revcards.Project;
+import uk.sch.greycourt.richmond.brandongruber.revcards.RevCard;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class EditCardsDialog extends Dialog<List<RevCard>> {
 
@@ -51,8 +54,11 @@ public class EditCardsDialog extends Dialog<List<RevCard>> {
             public void handle(ActionEvent event) {
                 RevCardDialogue dialogue = new RevCardDialogue();
                 Optional<RevCard> optional = dialogue.showAndWait();
-                optional.ifPresent(project -> {
-                    listView.getItems().addAll(optional.get());
+                optional.ifPresent(new Consumer<RevCard>() {
+                    @Override
+                    public void accept(RevCard project) {
+                        listView.getItems().addAll(optional.get());
+                    }
                 });
             }
         });
@@ -65,8 +71,11 @@ public class EditCardsDialog extends Dialog<List<RevCard>> {
                 int selectedIndex = listView.getSelectionModel().getSelectedIndex();
                 RevCardDialogue dialogue = new RevCardDialogue(listView.getSelectionModel().getSelectedItem());
                 Optional<RevCard> optional = dialogue.showAndWait();
-                optional.ifPresent(project -> {
-                    listView.getItems().set(selectedIndex, optional.get());
+                optional.ifPresent(new Consumer<RevCard>() {
+                    @Override
+                    public void accept(RevCard project) {
+                        listView.getItems().set(selectedIndex, optional.get());
+                    }
                 });
             }
         });

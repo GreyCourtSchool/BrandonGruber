@@ -1,15 +1,16 @@
-package uk.sch.greycourt.richmond.brandongruber.revcards;
+package uk.sch.greycourt.richmond.brandongruber.revcards.dialog;
 
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import uk.sch.greycourt.richmond.brandongruber.revcards.Project;
 
 /**
  * {@link Dialog} extension for editing a new project.
  */
-class EditProjectDialog extends Dialog<Project> {
+public class EditProjectDialog extends Dialog<Project> {
 
     private final TextField nameTextField = new TextField();
     private final TextField descriptionTextField = new TextField();
@@ -19,7 +20,7 @@ class EditProjectDialog extends Dialog<Project> {
      *
      * @param project
      */
-    EditProjectDialog(Project project) {
+    public EditProjectDialog(Project project) {
         setTitle("Edit Project" + project.getName());
         GridPane gridPane = new GridPane();
         gridPane.setHgap(4);

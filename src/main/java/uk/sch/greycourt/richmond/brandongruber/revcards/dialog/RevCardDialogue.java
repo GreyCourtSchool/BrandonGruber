@@ -1,12 +1,13 @@
-package uk.sch.greycourt.richmond.brandongruber.revcards;
+package uk.sch.greycourt.richmond.brandongruber.revcards.dialog;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import uk.sch.greycourt.richmond.brandongruber.revcards.RevCard;
 
 /**
  * {@link Dialog} extension for adding a new project.
  */
-class RevCardDialogue extends Dialog<RevCard> {
+public class RevCardDialogue extends Dialog<RevCard> {
 
     private final TextField titleTextField;
     private final TextArea contentTextArea;
@@ -14,7 +15,7 @@ class RevCardDialogue extends Dialog<RevCard> {
     /**
      * Constructor to use when creating a new {@link RevCard}
      */
-    RevCardDialogue() {
+    public RevCardDialogue() {
         setTitle("New RevCard");
         GridPane gridPane = new GridPane();
         gridPane.setHgap(4);
