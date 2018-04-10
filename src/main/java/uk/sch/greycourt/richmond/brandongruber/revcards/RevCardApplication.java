@@ -2,6 +2,7 @@ package uk.sch.greycourt.richmond.brandongruber.revcards;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -37,7 +38,7 @@ public class RevCardApplication extends Application {
     private Set<Project> projects = new TreeSet<>();
     private Menu projectMenu;
     private final RevisionCardReaderWriter revisionCardReaderWriter = new CsvFileReaderWriter();
-    private Project project;
+    private SimpleObjectProperty<Project> projectProperty = new SimpleObjectProperty<>();
     private VBox root;
     private RevCardViewer revCardViewer = new RevCardViewer();
     private Stage stage;
@@ -60,12 +61,16 @@ public class RevCardApplication extends Application {
         menuHBox.getChildren().add(menuBar);
 
         root = new VBox();
-        root.getChildren().add(menuHBox);
-        Scene scene = new Scene(root, 300, 250);
+        root.setSpacing(4);
+        root.getChildren().addAll(menuHBox, revCardViewer);
+        VBox.setVgrow(revCardViewer, Priority.ALWAYS);
+
+        Scene scene = new Scene(root, 800, 600);
 
         primaryStage.setTitle("RevCards");
         primaryStage.setScene(scene);
         primaryStage.show();
+
 
         loadProjects();
         projects.forEach(new Consumer<Project>() {
@@ -81,12 +86,13 @@ public class RevCardApplication extends Application {
         menuItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                RevCardApplication.this.project = project;
+                RevCardApplication.this.projectProperty.set(project);
                 stage.setTitle("RevCards - " + project.getName());
                 try {
                     project.setCardsList(revisionCardReaderWriter.getCardsFor(CARDS_FILE_PATH, project));
+                    revCardViewer.showCardsFor(project);
                 } catch (IOException e) {
-                    String message = "Could not read cards for project";
+                    String message = "Could not read cards for projectProperty";
                     logger.error(message, e);
 
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -132,25 +138,17 @@ public class RevCardApplication extends Application {
     private void createProjectMenu() {
         this.projectMenu = new Menu("Projects");
         projectMenu.getItems().addAll(createNewProjectMenuItem());
-        projectMenu.getItems().addAll(editProjectCardMenuItem());
+        projectMenu.getItems().addAll(editProjectMenuItem());
         projectMenu.getItems().addAll(new SeparatorMenuItem());
     }
 
-    private Menu getCardsMenu() {
-        Menu menu = new Menu("Cards");
-        menu.getItems().addAll(createNewCardMenuItem());
-        menu.getItems().addAll(createEditCardMenuItem());
-        menu.getItems().addAll(new SeparatorMenuItem());
-        menu.getItems().addAll(createViewCardsMenuItem());
-        return menu;
-    }
-
-    private MenuItem editProjectCardMenuItem() {
+    private MenuItem editProjectMenuItem() {
         MenuItem menuItem = new MenuItem("Edit Project");
+        menuItem.disableProperty().bind(projectProperty.isNull());
         menuItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                EditProjectDialog dialog = new EditProjectDialog(RevCardApplication.this.project);
+                EditProjectDialog dialog = new EditProjectDialog(RevCardApplication.this.projectProperty.get());
                 Optional<Project> optionalProject = dialog.showAndWait();
                 optionalProject.ifPresent(project -> {
                     logger.info("Project edited " + project.getName());
@@ -162,77 +160,13 @@ public class RevCardApplication extends Application {
         return menuItem;
     }
 
-    private MenuItem createEditCardMenuItem() {
-        MenuItem menuItem = new MenuItem("Edit Cards");
-        menuItem.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                EditCardDialog dialog = new EditCardDialog(RevCardApplication.this.project);
-                Optional<List<RevCard>> optional = dialog.showAndWait();
-                optional.ifPresent(project -> {
-                    logger.info("Cards edited for project " + RevCardApplication.this.project);
-                    RevCardApplication.this.project.setCardsList(optional.get());
-                    writeCards();
-                });
-            }
-        });
-        return menuItem;
-    }
-
-    private MenuItem createViewCardsMenuItem() {
-        MenuItem menuItem = new MenuItem("View Cards");
-        menuItem.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if (!root.getChildren().contains(revCardViewer)) {
-                    root.getChildren().add(revCardViewer);
-                    VBox.setVgrow(revCardViewer, Priority.ALWAYS);
-                }
-                revCardViewer.showCardsFor(project);
-            }
-        });
-        return menuItem;
-    }
-
-    private MenuItem createNewCardMenuItem() {
-        MenuItem newCardMenuItem = new MenuItem("New Card");
-        newCardMenuItem.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                NewRevCardDialogue dialogue = new NewRevCardDialogue();
-                Optional<RevCard> optionalCard = dialogue.showAndWait();
-                optionalCard.ifPresent(project -> {
-                    logger.info("Creating new RevCard " + project.getTitle());
-                    RevCardApplication.this.project.addCard(project);
-                    writeCards();
-
-                });
-            }
-        });
-        return newCardMenuItem;
-    }
-
-    private void writeCards() {
-        try {
-            revisionCardReaderWriter.writeCards(new File(CARDS_FILE_PATH), RevCardApplication.this.projects);
-        } catch (IOException e) {
-            String message = "Could not write projects";
-            logger.error(message, e);
-
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Warning");
-            alert.setContentText(message);
-            alert.showAndWait();
-        }
-    }
-
     private MenuItem createNewProjectMenuItem() {
-        MenuItem newProjectMenuItem = new MenuItem("New Project");
-        newProjectMenuItem.setOnAction(event -> {
+        MenuItem menuItem = new MenuItem("New Project");
+        menuItem.setOnAction(event -> {
             NewProjectDialog dialog = new NewProjectDialog();
             Optional<Project> optionalProject = dialog.showAndWait();
             optionalProject.ifPresent(project -> {
-                // check that project does not already exist
+                // check that projectProperty does not already exist
                 if (projects.contains(project)) {
                     String message = String.format("Project %s already exists", project.getName());
                     logger.info(message);
@@ -244,20 +178,82 @@ public class RevCardApplication extends Application {
                     return;
                 }
 
-                logger.info("Creating new project " + project.getName());
+                logger.info("Creating new projectProperty " + project.getName());
                 this.projects.add(project);
                 RevCardApplication.this.addOpenProjectMenuItem(project);
                 writeProjects();
 
             });
-            // TODO save project in csv
+            // TODO save projectProperty in csv
         });
-        return newProjectMenuItem;
+        return menuItem;
     }
 
     private void writeProjects() {
         try {
             revisionCardReaderWriter.writeProjects(new File(PROJECTS_FILE_PATH), this.projects);
+        } catch (IOException e) {
+            String message = "Could not write projects";
+            logger.error(message, e);
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Warning");
+            alert.setContentText(message);
+            alert.showAndWait();
+        }
+    }
+
+
+    private Menu getCardsMenu() {
+        Menu menu = new Menu("Cards");
+        menu.getItems().addAll(createNewCardMenuItem());
+        menu.getItems().addAll(createEditCardsMenuItem());
+        return menu;
+    }
+
+
+    private MenuItem createEditCardsMenuItem() {
+        MenuItem menuItem = new MenuItem("Edit Cards");
+        menuItem.disableProperty().bind(projectProperty.isNull());
+        menuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                EditCardsDialog dialog = new EditCardsDialog(RevCardApplication.this.projectProperty.get());
+                Optional<List<RevCard>> optional = dialog.showAndWait();
+                optional.ifPresent(project -> {
+                    logger.info("Cards edited for projectProperty " + RevCardApplication.this.projectProperty.get().getName());
+                    RevCardApplication.this.projectProperty.get().setCardsList(optional.get());
+                    writeCards();
+                    revCardViewer.showCardsFor(RevCardApplication.this.projectProperty.get());
+                });
+            }
+        });
+        return menuItem;
+    }
+
+
+    private MenuItem createNewCardMenuItem() {
+        MenuItem menuItem = new MenuItem("New Card");
+        menuItem.disableProperty().bind(projectProperty.isNull());
+        menuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                RevCardDialogue dialogue = new RevCardDialogue();
+                Optional<RevCard> optionalCard = dialogue.showAndWait();
+                optionalCard.ifPresent(project -> {
+                    logger.info("Creating new RevCard " + project.getTitle());
+                    RevCardApplication.this.projectProperty.get().addCard(project);
+                    writeCards();
+
+                });
+            }
+        });
+        return menuItem;
+    }
+
+    private void writeCards() {
+        try {
+            revisionCardReaderWriter.writeCards(new File(CARDS_FILE_PATH), RevCardApplication.this.projects);
         } catch (IOException e) {
             String message = "Could not write projects";
             logger.error(message, e);

@@ -6,15 +6,15 @@ import javafx.scene.layout.GridPane;
 /**
  * {@link Dialog} extension for adding a new project.
  */
-class NewRevCardDialogue extends Dialog<RevCard> {
+class RevCardDialogue extends Dialog<RevCard> {
 
     private final TextField titleTextField;
     private final TextArea contentTextArea;
 
     /**
-     * Constructor.
+     * Constructor to use when creating a new {@link RevCard}
      */
-    NewRevCardDialogue() {
+    RevCardDialogue() {
         setTitle("New RevCard");
         GridPane gridPane = new GridPane();
         gridPane.setHgap(4);
@@ -30,4 +30,14 @@ class NewRevCardDialogue extends Dialog<RevCard> {
         setResultConverter(param -> new RevCard(titleTextField.getText(), contentTextArea.getText()));
     }
 
+    /**
+     * Constructor to use when editing a {@link RevCard}
+     *
+     * @param revCard
+     */
+    public RevCardDialogue(RevCard revCard) {
+        this();
+        titleTextField.setText(revCard.getTitle());
+        contentTextArea.setText(revCard.getContent());
+    }
 }
