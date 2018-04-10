@@ -7,18 +7,20 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
 /**
- * {@link Dialog} extension for adding a new project.
+ * {@link Dialog} extension for editing a new project.
  */
-class NewProjectDialog extends Dialog<Project> {
+class EditProjectDialog extends Dialog<Project> {
 
     private final TextField nameTextField = new TextField();
     private final TextField descriptionTextField = new TextField();
 
     /**
      * Constructor.
+     *
+     * @param project
      */
-    NewProjectDialog() {
-        setTitle("New Project");
+    EditProjectDialog(Project project) {
+        setTitle("Edit Project" + project.getName());
         GridPane gridPane = new GridPane();
         gridPane.setHgap(4);
         gridPane.setVgap(4);
@@ -29,6 +31,9 @@ class NewProjectDialog extends Dialog<Project> {
         getDialogPane().setContent(gridPane);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         setResultConverter(param -> new Project(nameTextField.getText(), descriptionTextField.getText()));
+
+        this.nameTextField.setText(project.getName());
+        this.descriptionTextField.setText(project.getDescription());
     }
 
 }

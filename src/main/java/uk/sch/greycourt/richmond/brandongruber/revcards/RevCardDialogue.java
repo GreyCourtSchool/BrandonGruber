@@ -15,6 +15,7 @@ class NewRevCardDialogue extends Dialog<RevCard> {
      * Constructor.
      */
     NewRevCardDialogue() {
+        setTitle("New RevCard");
         GridPane gridPane = new GridPane();
         gridPane.setHgap(4);
         gridPane.setVgap(4);

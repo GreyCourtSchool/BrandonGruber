@@ -17,9 +17,11 @@ import uk.sch.greycourt.richmond.brandongruber.revcards.io.RevisionCardReaderWri
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 /**
  * The main application class for RevCards.
@@ -38,6 +40,7 @@ public class RevCardApplication extends Application {
     private Project project;
     private VBox root;
     private RevCardViewer revCardViewer = new RevCardViewer();
+    private Stage stage;
 
     /**
      * The main entry point for the application.
@@ -50,6 +53,8 @@ public class RevCardApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        this.stage = primaryStage;
+
         HBox menuHBox = new HBox();
         MenuBar menuBar = getMenuBar();
         menuHBox.getChildren().add(menuBar);
@@ -63,29 +68,35 @@ public class RevCardApplication extends Application {
         primaryStage.show();
 
         loadProjects();
-        projects.forEach(project -> {
-            MenuItem menuItem = new MenuItem(project.getName());
-            menuItem.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    RevCardApplication.this.project = project;
-                    try {
-                        project.setCardsList(revisionCardReaderWriter.getCardsFor(CARDS_FILE_PATH, project));
-                    } catch (IOException e) {
-                        String message = "Could not read cards for project";
-                        logger.error(message, e);
-
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Warning");
-                        alert.setContentText(message);
-                        alert.showAndWait();
-                    }
-                }
-            });
-            projectMenu.getItems().addAll(menuItem);
+        projects.forEach(new Consumer<Project>() {
+            @Override
+            public void accept(Project project) {
+                RevCardApplication.this.addOpenProjectMenuItem(project);
+            }
         });
+    }
 
+    private void addOpenProjectMenuItem(Project project) {
+        MenuItem menuItem = new MenuItem(project.getName());
+        menuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                RevCardApplication.this.project = project;
+                stage.setTitle("RevCards - " + project.getName());
+                try {
+                    project.setCardsList(revisionCardReaderWriter.getCardsFor(CARDS_FILE_PATH, project));
+                } catch (IOException e) {
+                    String message = "Could not read cards for project";
+                    logger.error(message, e);
 
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Warning");
+                    alert.setContentText(message);
+                    alert.showAndWait();
+                }
+            }
+        });
+        projectMenu.getItems().addAll(menuItem);
     }
 
     private void loadProjects() {
@@ -121,16 +132,51 @@ public class RevCardApplication extends Application {
     private void createProjectMenu() {
         this.projectMenu = new Menu("Projects");
         projectMenu.getItems().addAll(createNewProjectMenuItem());
+        projectMenu.getItems().addAll(editProjectCardMenuItem());
         projectMenu.getItems().addAll(new SeparatorMenuItem());
     }
 
     private Menu getCardsMenu() {
         Menu menu = new Menu("Cards");
         menu.getItems().addAll(createNewCardMenuItem());
-        menu.getItems().addAll(new MenuItem("Edit Card"));
+        menu.getItems().addAll(createEditCardMenuItem());
         menu.getItems().addAll(new SeparatorMenuItem());
         menu.getItems().addAll(createViewCardsMenuItem());
         return menu;
+    }
+
+    private MenuItem editProjectCardMenuItem() {
+        MenuItem menuItem = new MenuItem("Edit Project");
+        menuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                EditProjectDialog dialog = new EditProjectDialog(RevCardApplication.this.project);
+                Optional<Project> optionalProject = dialog.showAndWait();
+                optionalProject.ifPresent(project -> {
+                    logger.info("Project edited " + project.getName());
+                    RevCardApplication.this.projects.add(project);
+                    writeProjects();
+                });
+            }
+        });
+        return menuItem;
+    }
+
+    private MenuItem createEditCardMenuItem() {
+        MenuItem menuItem = new MenuItem("Edit Cards");
+        menuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                EditCardDialog dialog = new EditCardDialog(RevCardApplication.this.project);
+                Optional<List<RevCard>> optional = dialog.showAndWait();
+                optional.ifPresent(project -> {
+                    logger.info("Cards edited for project " + RevCardApplication.this.project);
+                    RevCardApplication.this.project.setCardsList(optional.get());
+                    writeCards();
+                });
+            }
+        });
+        return menuItem;
     }
 
     private MenuItem createViewCardsMenuItem() {
@@ -153,24 +199,12 @@ public class RevCardApplication extends Application {
         newCardMenuItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                NewRevCardDialogue revCardDialogue = new NewRevCardDialogue();
-                Optional<RevCard> optionalCard = revCardDialogue.showAndWait();
+                NewRevCardDialogue dialogue = new NewRevCardDialogue();
+                Optional<RevCard> optionalCard = dialogue.showAndWait();
                 optionalCard.ifPresent(project -> {
                     logger.info("Creating new RevCard " + project.getTitle());
-                    try {
-                        RevCardApplication.this.project.addCard(project);
-
-                        revisionCardReaderWriter.writeCards(new File(CARDS_FILE_PATH), RevCardApplication.this.projects);
-                    } catch (IOException e) {
-                        String message = "Could not write projects";
-                        logger.error(message, e);
-
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Warning");
-//                    alert.setHeaderText("Look, a Warning Dialog");
-                        alert.setContentText(message);
-                        alert.showAndWait();
-                    }
+                    RevCardApplication.this.project.addCard(project);
+                    writeCards();
 
                 });
             }
@@ -178,11 +212,25 @@ public class RevCardApplication extends Application {
         return newCardMenuItem;
     }
 
+    private void writeCards() {
+        try {
+            revisionCardReaderWriter.writeCards(new File(CARDS_FILE_PATH), RevCardApplication.this.projects);
+        } catch (IOException e) {
+            String message = "Could not write projects";
+            logger.error(message, e);
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Warning");
+            alert.setContentText(message);
+            alert.showAndWait();
+        }
+    }
+
     private MenuItem createNewProjectMenuItem() {
         MenuItem newProjectMenuItem = new MenuItem("New Project");
         newProjectMenuItem.setOnAction(event -> {
-            NewProjectDialog newProjectDialogue = new NewProjectDialog();
-            Optional<Project> optionalProject = newProjectDialogue.showAndWait();
+            NewProjectDialog dialog = new NewProjectDialog();
+            Optional<Project> optionalProject = dialog.showAndWait();
             optionalProject.ifPresent(project -> {
                 // check that project does not already exist
                 if (projects.contains(project)) {
@@ -191,31 +239,34 @@ public class RevCardApplication extends Application {
 
                     Alert alert = new Alert(Alert.AlertType.WARNING);
                     alert.setTitle("Warning");
-//                    alert.setHeaderText("Look, a Warning Dialog");
                     alert.setContentText(message);
                     alert.showAndWait();
+                    return;
                 }
 
                 logger.info("Creating new project " + project.getName());
-                try {
-                    this.projects.add(project);
-
-                    revisionCardReaderWriter.writeProjects(new File(PROJECTS_FILE_PATH), this.projects);
-                } catch (IOException e) {
-                    String message = "Could not write projects";
-                    logger.error(message, e);
-
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Warning");
-//                    alert.setHeaderText("Look, a Warning Dialog");
-                    alert.setContentText(message);
-                    alert.showAndWait();
-                }
+                this.projects.add(project);
+                RevCardApplication.this.addOpenProjectMenuItem(project);
+                writeProjects();
 
             });
             // TODO save project in csv
         });
         return newProjectMenuItem;
+    }
+
+    private void writeProjects() {
+        try {
+            revisionCardReaderWriter.writeProjects(new File(PROJECTS_FILE_PATH), this.projects);
+        } catch (IOException e) {
+            String message = "Could not write projects";
+            logger.error(message, e);
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Warning");
+            alert.setContentText(message);
+            alert.showAndWait();
+        }
     }
 
     private Menu getHelpMenu() {

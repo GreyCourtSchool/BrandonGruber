@@ -22,21 +22,15 @@ public class CsvFileReaderWriter implements RevisionCardReaderWriter {
 
     @Override
     public void writeProjects(File outputFile, Collection<Project> projects) throws IOException {
-        FileWriter fileWriter = new FileWriter(outputFile);
-        CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.EXCEL);
-
-        // Write the projects to the csv file.
-        for (Project project : projects) {
-            List<String> rowDataList = new ArrayList<>();
-            rowDataList.add(project.getName());
-            rowDataList.add(project.getDescription());
-            csvPrinter.printRecord(rowDataList);
+        try (CSVPrinter csvPrinter = new CSVPrinter(new FileWriter(outputFile), CSVFormat.EXCEL)) {
+            // Write the projects to the csv file.
+            for (Project project : projects) {
+                List<String> rowDataList = new ArrayList<>();
+                rowDataList.add(project.getName());
+                rowDataList.add(project.getDescription());
+                csvPrinter.printRecord(rowDataList);
+            }
         }
-
-        fileWriter.flush();
-        fileWriter.close();
-        csvPrinter.close();
-
     }
 
 
@@ -57,22 +51,17 @@ public class CsvFileReaderWriter implements RevisionCardReaderWriter {
     @Override
     public void writeCards(File outputFile, Set<Project> projects) throws IOException {
         outputFile.createNewFile();
-        FileWriter fileWriter = new FileWriter(outputFile);
-        CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.EXCEL);
-
-        for (Project project : projects) {
-            for (RevCard revCard : project.getCardList()) {
-                List<String> rowDataList = new ArrayList<>();
-                rowDataList.add(project.getName());
-                rowDataList.add(revCard.getTitle());
-                rowDataList.add(revCard.getContent());
-                csvPrinter.printRecord(rowDataList);
+        try (CSVPrinter csvPrinter = new CSVPrinter(new FileWriter(outputFile), CSVFormat.EXCEL)) {
+            for (Project project : projects) {
+                for (RevCard revCard : project.getCardList()) {
+                    List<String> rowDataList = new ArrayList<>();
+                    rowDataList.add(project.getName());
+                    rowDataList.add(revCard.getTitle());
+                    rowDataList.add(revCard.getContent());
+                    csvPrinter.printRecord(rowDataList);
+                }
             }
         }
-
-        fileWriter.flush();
-        fileWriter.close();
-        csvPrinter.close();
     }
 
     @Override
