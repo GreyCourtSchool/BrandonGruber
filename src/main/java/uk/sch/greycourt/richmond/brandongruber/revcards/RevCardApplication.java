@@ -19,7 +19,6 @@ import uk.sch.greycourt.richmond.brandongruber.revcards.dialog.RevCardDialogue;
 import uk.sch.greycourt.richmond.brandongruber.revcards.io.CsvFileReaderWriter;
 import uk.sch.greycourt.richmond.brandongruber.revcards.io.RevisionCardReaderWriter;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -36,8 +35,6 @@ import java.util.function.Consumer;
  */
 public class RevCardApplication extends Application {
 
-    private static final String PROJECTS_FILE_PATH = System.getProperty("user.home") + File.separator + "projects.csv";
-    private static final String CARDS_FILE_PATH = System.getProperty("user.home") + File.separator + "cards.csv";
 
     private Logger logger = LogManager.getLogger(getClass());
 
@@ -103,7 +100,7 @@ public class RevCardApplication extends Application {
                 RevCardApplication.this.projectProperty.set(project);
                 setTitleFor(project);
                 try {
-                    project.setCardsList(revisionCardReaderWriter.getCardsFor(CARDS_FILE_PATH, project));
+                    project.setCardsList(revisionCardReaderWriter.getCardsFor(project));
                     revCardViewer.showCardsFor(project);
                 } catch (IOException e) {
                     String message = "Could not read cards for projectProperty";
@@ -125,14 +122,7 @@ public class RevCardApplication extends Application {
 
     private void loadProjects() {
         try {
-            File file = new File(PROJECTS_FILE_PATH);
-            if (!file.exists()) {
-                logger.info("creating {}", PROJECTS_FILE_PATH);
-                file.createNewFile();
-                logger.info("Projects file {} written", PROJECTS_FILE_PATH);
-            }
-
-            projects.addAll(revisionCardReaderWriter.readProjects(PROJECTS_FILE_PATH));
+            projects.addAll(revisionCardReaderWriter.readProjects());
 
         } catch (IOException e) {
             String message = "Could not read projects";
@@ -217,7 +207,7 @@ public class RevCardApplication extends Application {
 
     private void writeProjects() {
         try {
-            revisionCardReaderWriter.writeProjects(new File(PROJECTS_FILE_PATH), this.projects);
+            revisionCardReaderWriter.writeProjects(this.projects);
         } catch (IOException e) {
             String message = "Could not write projects";
             logger.error(message, e);
@@ -279,7 +269,7 @@ public class RevCardApplication extends Application {
 
     private void writeCards() {
         try {
-            revisionCardReaderWriter.writeCards(new File(CARDS_FILE_PATH), RevCardApplication.this.projects);
+            revisionCardReaderWriter.writeCards(RevCardApplication.this.projects);
         } catch (IOException e) {
             String message = "Could not write projects";
             logger.error(message, e);
