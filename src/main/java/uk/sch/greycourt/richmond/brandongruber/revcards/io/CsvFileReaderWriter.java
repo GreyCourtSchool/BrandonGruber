@@ -21,9 +21,12 @@ public class CsvFileReaderWriter implements RevisionCardReaderWriter {
 
     @Override
     public void writeProjects(File outputFile, Collection<Project> projects) throws IOException {
+
+        // writes the projects to the specified file in CSV (comma separated values) format, with each project on a new line
         try (CSVPrinter csvPrinter = new CSVPrinter(new FileWriter(outputFile), CSVFormat.EXCEL)) {
             // Write the projects to the csv file.
             for (Project project : projects) {
+                // project has a name and a description
                 List<String> rowDataList = new ArrayList<>();
                 rowDataList.add(project.getName());
                 rowDataList.add(project.getDescription());
@@ -37,6 +40,8 @@ public class CsvFileReaderWriter implements RevisionCardReaderWriter {
     public List<Project> readProjects(String fileName) throws IOException {
         List<Project> result = new ArrayList<>();
         Reader reader = new FileReader(fileName);
+
+        // reads the projects from a csv file, each project is on a different line and has a name and description
         CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withHeader(CsvFileHeaders.PROJECT_NAME, CsvFileHeaders.PROJECT_DESCRIPTION)
                 .withTrim());
         for (CSVRecord record : csvParser.getRecords()) {
@@ -50,6 +55,8 @@ public class CsvFileReaderWriter implements RevisionCardReaderWriter {
     @Override
     public void writeCards(File outputFile, Set<Project> projects) throws IOException {
         outputFile.createNewFile();
+
+        // write the revision cards to a seperate CSV file to the projects, each card is on a different line, and the first field is the unique name of the project
         try (CSVPrinter csvPrinter = new CSVPrinter(new FileWriter(outputFile), CSVFormat.EXCEL)) {
             for (Project project : projects) {
                 for (RevCard revCard : project.getCardList()) {
@@ -71,6 +78,8 @@ public class CsvFileReaderWriter implements RevisionCardReaderWriter {
                 .withTrim());
         for (CSVRecord record : csvParser.getRecords()) {
             String projectName = record.get(CsvFileHeaders.PROJECT_NAME);
+
+            // we only want to return revision cards for     the specified project
             if (projectName.equals(project.getName())) {
                 String title = record.get(CsvFileHeaders.CARD_TITLE);
                 String description = record.get(CsvFileHeaders.CARD_CONTENT);

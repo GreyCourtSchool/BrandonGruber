@@ -30,8 +30,23 @@ public interface RevisionCardReaderWriter {
      */
     List<Project> readProjects(String fileName) throws IOException;
 
+    /**
+     * write the entire list of revision cards from all projects to the specified file,
+     *
+     * @param file
+     * @param projects
+     * @throws IOException
+     */
     void writeCards(File file, Set<Project> projects) throws IOException;
 
 
+    /**
+     * gets the list of cards for the specified project
+     *
+     * @param fileName
+     * @param project
+     * @return
+     * @throws IOException
+     */
     List<RevCard> getCardsFor(String fileName, Project project) throws IOException;
 }
