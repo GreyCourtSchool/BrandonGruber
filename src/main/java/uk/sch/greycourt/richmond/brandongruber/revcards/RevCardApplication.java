@@ -14,8 +14,7 @@ import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.sch.greycourt.richmond.brandongruber.revcards.dialog.EditCardsDialog;
-import uk.sch.greycourt.richmond.brandongruber.revcards.dialog.EditProjectDialog;
-import uk.sch.greycourt.richmond.brandongruber.revcards.dialog.NewProjectDialog;
+import uk.sch.greycourt.richmond.brandongruber.revcards.dialog.ProjectDialog;
 import uk.sch.greycourt.richmond.brandongruber.revcards.dialog.RevCardDialogue;
 import uk.sch.greycourt.richmond.brandongruber.revcards.io.CsvFileReaderWriter;
 import uk.sch.greycourt.richmond.brandongruber.revcards.io.RevisionCardReaderWriter;
@@ -91,7 +90,7 @@ public class RevCardApplication extends Application {
             @Override
             public void handle(ActionEvent event) {
                 RevCardApplication.this.projectProperty.set(project);
-                stage.setTitle("RevCards - " + project.getName());
+                setTitleFor(project);
                 try {
                     project.setCardsList(revisionCardReaderWriter.getCardsFor(CARDS_FILE_PATH, project));
                     revCardViewer.showCardsFor(project);
@@ -107,6 +106,10 @@ public class RevCardApplication extends Application {
             }
         });
         projectMenu.getItems().addAll(menuItem);
+    }
+
+    private void setTitleFor(Project project) {
+        stage.setTitle("RevCards - " + project.getName());
     }
 
     private void loadProjects() {
@@ -152,12 +155,17 @@ public class RevCardApplication extends Application {
         menuItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                EditProjectDialog dialog = new EditProjectDialog(RevCardApplication.this.projectProperty.get());
+                Project existingProject = RevCardApplication.this.projectProperty.get();
+                ProjectDialog dialog = new ProjectDialog(existingProject);
                 Optional<Project> optionalProject = dialog.showAndWait();
                 optionalProject.ifPresent((Project project) -> {
                     logger.info("Project edited " + project.getName());
+                    project.setCardsList(existingProject.getCardList());
+                    RevCardApplication.this.projects.remove(existingProject);
                     RevCardApplication.this.projects.add(project);
+                    setTitleFor(project);
                     writeProjects();
+                    writeCards();
                 });
             }
         });
@@ -167,7 +175,7 @@ public class RevCardApplication extends Application {
     private MenuItem createNewProjectMenuItem() {
         MenuItem menuItem = new MenuItem("New Project");
         menuItem.setOnAction(event -> {
-            NewProjectDialog dialog = new NewProjectDialog();
+            ProjectDialog dialog = new ProjectDialog();
             Optional<Project> optionalProject = dialog.showAndWait();
             optionalProject.ifPresent(new Consumer<Project>() {
                 @Override

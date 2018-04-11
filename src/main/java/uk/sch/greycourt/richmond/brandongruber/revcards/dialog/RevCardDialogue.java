@@ -2,6 +2,7 @@ package uk.sch.greycourt.richmond.brandongruber.revcards.dialog;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.util.Callback;
 import uk.sch.greycourt.richmond.brandongruber.revcards.RevCard;
 
 /**
@@ -13,7 +14,7 @@ public class RevCardDialogue extends Dialog<RevCard> {
     private final TextArea contentTextArea = new TextArea();
 
     /**
-     * Constructor to use when creating a new {@link RevCard}
+     * Constructor to use when creating a new {@link RevCard} and editing an existing card
      */
     public RevCardDialogue() {
         setTitle("New RevCard");
@@ -28,7 +29,15 @@ public class RevCardDialogue extends Dialog<RevCard> {
         gridPane.add(contentTextArea, 1, 1, 1, 1);
         getDialogPane().setContent(gridPane);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        setResultConverter(param -> new RevCard(titleTextField.getText(), contentTextArea.getText()));
+
+        getDialogPane().lookupButton(ButtonType.OK).disableProperty().bind(titleTextField.textProperty().isEmpty());
+
+        setResultConverter(new Callback<ButtonType, RevCard>() {
+            @Override
+            public RevCard call(ButtonType param) {
+                return new RevCard(titleTextField.getText(), contentTextArea.getText());
+            }
+        });
     }
 
     /**
@@ -38,6 +47,8 @@ public class RevCardDialogue extends Dialog<RevCard> {
      */
     public RevCardDialogue(RevCard revCard) {
         this();
+
+        // set the title and the content of the card being edited
         titleTextField.setText(revCard.getTitle());
         contentTextArea.setText(revCard.getContent());
     }

@@ -33,6 +33,8 @@ public class EditProjectDialog extends Dialog<Project> {
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         setResultConverter(param -> new Project(nameTextField.getText(), descriptionTextField.getText()));
 
+        getDialogPane().lookupButton(ButtonType.OK).disableProperty().bind(nameTextField.textProperty().isEmpty());
+
         this.nameTextField.setText(project.getName());
         this.descriptionTextField.setText(project.getDescription());
     }
