@@ -30,12 +30,15 @@ import java.util.function.Consumer;
 /**
  * The main application class for RevCards.
  *
+ * {@link Application} a javafx application. javafx is the current standard way to build a gui application in java.
+ *
  * @see javafx.application.Application
  */
 public class RevCardApplication extends Application {
 
     private static final String PROJECTS_FILE_PATH = System.getProperty("user.home") + File.separator + "projects.csv";
     private static final String CARDS_FILE_PATH = System.getProperty("user.home") + File.separator + "cards.csv";
+
     private Logger logger = LogManager.getLogger(getClass());
 
     private Set<Project> projects = new TreeSet<>();
@@ -47,19 +50,26 @@ public class RevCardApplication extends Application {
     private Stage stage;
 
     /**
-     * The main entry point for the application.
+     * The main entry point for the application. The main method is the standard way of lunching a java application.
      *
      * @param args
      */
     public static void main(String[] args) {
+        // launch the javafx GUI application.
         launch(args);
     }
 
+    /**
+     * this is called by javafx just before the GUI is shown, so prepare the components to be displayed.
+     *
+     * @param primaryStage
+     */
     @Override
     public void start(Stage primaryStage) {
         this.stage = primaryStage;
 
         HBox menuHBox = new HBox();
+        // create a small menu structure
         MenuBar menuBar = getMenuBar();
         menuHBox.getChildren().add(menuBar);
 
@@ -74,8 +84,9 @@ public class RevCardApplication extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-
+// load the projects from the project csv file
         loadProjects();
+        // add a menu item for each project
         projects.forEach(new Consumer<Project>() {
             @Override
             public void accept(Project project) {
