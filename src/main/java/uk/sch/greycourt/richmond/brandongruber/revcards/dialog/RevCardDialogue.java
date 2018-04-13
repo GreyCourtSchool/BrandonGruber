@@ -47,6 +47,7 @@ public class RevCardDialogue extends Dialog<RevCard> {
      */
     public RevCardDialogue(RevCard revCard) {
         this();
+        setTitle("Edit RevCard");
 
         // set the title and the content of the card being edited
         titleTextField.setText(revCard.getTitle());

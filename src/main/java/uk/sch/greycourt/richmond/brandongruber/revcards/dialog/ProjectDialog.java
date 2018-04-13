@@ -49,6 +49,8 @@ public class ProjectDialog extends Dialog<Project> {
     public ProjectDialog(Project project) {
         this();
 
+        setTitle("Edit Project");
+
         this.nameTextField.setText(project.getName());
         this.descriptionTextField.setText(project.getDescription());
     }
