@@ -18,3 +18,8 @@ compile-and-run.bat[ENTER]
 ```
  
 This will compile source code into the bin directory, and run the binary code with the libraries in the library directory on the Java classpath
+
+Note: the projects and cards CSV files are created on first launch of the application and are written to the user home directory, for example 
+```
+C:\Users\[USERNAME] in Windows.
+``` 
