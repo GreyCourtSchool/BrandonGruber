@@ -9,6 +9,12 @@ mvn clean install
 ```
 
 # How to run
-java -cp target/brandongruber.revcards-1.0-SNAPSHOT.jar uk.sch.greycourt.richmond.brandongruber.revcards.RevCardApplication
+Either import the pom.xml maven project file into an IDE (Eclipse or Intellij) 
 
+Or from a DOS command prompt, run the compile-and-run.bat batch file:
+
+```
+compile-and-run.bat[ENTER]
+```
  
+This will compile source code into the bin directory, and run the binary code with the libraries in the library directory on the Java classpath
