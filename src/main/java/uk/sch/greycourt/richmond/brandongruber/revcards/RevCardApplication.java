@@ -130,7 +130,6 @@ public class RevCardApplication extends Application {
 
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Warning");
-//            alert.setHeaderText("Look, a Warning Dialog");
             alert.setContentText(message);
             alert.showAndWait();
         }
@@ -200,7 +199,6 @@ public class RevCardApplication extends Application {
 
                 }
             });
-            // TODO save projectProperty in csv
         });
         return menuItem;
     }

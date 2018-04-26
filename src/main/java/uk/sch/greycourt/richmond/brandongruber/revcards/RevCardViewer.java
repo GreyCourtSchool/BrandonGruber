@@ -28,6 +28,7 @@ public class RevCardViewer extends BorderPane {
         titleLabel.setFont(new Font("Arial", 30));
         contentLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 24));
         contentLabel.setDisable(true);
+        contentLabel.setWrapText(true);
 
         HBox hBox = new HBox();
 

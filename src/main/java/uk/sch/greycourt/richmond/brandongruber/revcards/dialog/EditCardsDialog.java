@@ -28,7 +28,7 @@ public class EditCardsDialog extends Dialog<List<RevCard>> {
      *
      * @param project the {@link Project} to edit the cards for.
      */
-    public EditCardsDialog(Project project) {
+    public  EditCardsDialog(Project project) {
         setTitle("Edit RevCards for Project " + project.getName());
         BorderPane borderPane = new BorderPane();
         borderPane.setPadding(new Insets(4));
